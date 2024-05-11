@@ -7,6 +7,6 @@ export interface Board {
 
 //타입을 정의해놓고쓴다
 export enum BoardStatus {
-  PUBLIC = 'public',
-  PRIVATE = 'private',
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE',
 }
