@@ -5,6 +5,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   UsePipes,
@@ -34,20 +35,28 @@ export class BoardsController {
 
 
   @Get(':id')
-  getBoardById(@Param('id') id:number): Promise <Board> {
+  getBoardById(
+    @Param('id', ParseIntPipe) id:number): Promise <Board> {
     return this.boardsService.getBoardById(id);
   }
 
-  // @Delete('/:id')
-  // deleteBoard(@Param('id') id: string): void {
-  //   this.boardsService.deleteBoard(id);
-  // }
+  @Get('')
+  getAllBoards(): Promise<Board[]> {
+    return this.boardsService.getAllBoards();
+  }
 
-  // @Patch('/:id/status')
-  // updateBoardStatus(
-  //   @Param('id') id: string,
-  //   @Body('status', BoardStatusValidationPipe) status: BoardStatus,
-  // ) {
-  //   return this.boardsService.updateBoardStatus(id, status);
-  // }
+  @Delete('/:id')
+  deleteBoard(
+    @Param('id') id: number): void {
+    this.boardsService.deleteBoard(id);
+  }
+
+  @Patch('/:id/status')
+  updateBoardStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body('status', BoardStatusValidationPipe) status: BoardStatus,
+  ) {
+    
+    return this.boardsService.updateBoardStatus(id, status);
+  }
 }

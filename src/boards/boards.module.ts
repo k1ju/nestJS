@@ -9,7 +9,7 @@ import { BoardRepository } from './board.repository';
     TypeOrmModule.forFeature([BoardRepository])
   ],
   controllers: [BoardsController],
-  providers: [BoardsService]
+  providers: [BoardsService, BoardRepository]
 })
 export class BoardsModule {}
  
