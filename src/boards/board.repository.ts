@@ -2,20 +2,21 @@ import { DataSource, Repository } from "typeorm";
 import { Board } from "./board.entity";
 import { Injectable } from "@nestjs/common";
 import { BoardStatus } from "./board-status.enum";
+import { CreateBoardDto } from "./dto/createBoardDto";
 
 @Injectable()
 export class BoardRepository extends Repository<Board> {
+    //이부분다시듣기
     constructor(private dataSource: DataSource)
     {
         super(Board, dataSource.createEntityManager());
     }
 
     //게시글생성
-    async createBoard(createBoardDto){
-    
+    async createBoard(createBoardDto: CreateBoardDto){
         const {title, description} = createBoardDto;
 
-        const board = await this.create({
+        const board = this.create({
         title,
         description,
         status: BoardStatus.PUBLIC

@@ -9,16 +9,11 @@ import { Board } from './board.entity';
 @Injectable()
 export class BoardsService {
 
-  constructor(
-    private boardRepository: BoardRepository,
-  ){}
-
+  constructor(private boardRepository: BoardRepository){}
 
   //게시글생성하기
-  createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
-    
-    return this.boardRepository.createBoard(createBoardDto);
-
+  async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
+    return await this.boardRepository.createBoard(createBoardDto);
   }
 
   //게시글보기
@@ -33,13 +28,11 @@ export class BoardsService {
 
   //게시글 전체보기
   async getAllBoards():Promise<Board[]>{
-
     return await this.boardRepository.find();
   }
 
   //게시글삭제
   deleteBoard(id: number) {
-    
     this.boardRepository.deleteBoard(id);
   }
 
