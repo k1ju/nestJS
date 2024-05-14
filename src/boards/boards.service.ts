@@ -5,6 +5,7 @@ import { CreateBoardDto } from './dto/createBoardDto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from './board.repository';
 import { Board } from './board.entity';
+import { User } from 'src/auth/User.entity';
 
 @Injectable()
 export class BoardsService {
@@ -12,8 +13,8 @@ export class BoardsService {
   constructor(private boardRepository: BoardRepository){}
 
   //게시글생성하기
-  async createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
-    return await this.boardRepository.createBoard(createBoardDto);
+  async createBoard(createBoardDto: CreateBoardDto, user: User): Promise<Board> {
+    return await this.boardRepository.createBoard(createBoardDto, user);
   }
 
   //게시글보기
@@ -27,13 +28,23 @@ export class BoardsService {
   }
 
   //게시글 전체보기
-  async getAllBoards():Promise<Board[]>{
-    return await this.boardRepository.find();
+  async getAllBoard(user: User): Promise<Board[]> {
+    const query = await this.boardRepository.createQueryBuilder('board');
+    
+    query.where('board.userId = :userId', {userId: user.id})
+
+    const boards = await query.getMany();
+
+    return boards;
   }
 
   //게시글삭제
-  deleteBoard(id: number) {
-    this.boardRepository.deleteBoard(id);
+  async deleteBoard(id: number, user: User): Promise<void> {
+    const result = await this.boardRepository.delete({id: id, user: user});
+
+    if(result.affected === 0){
+      throw new NotFoundException(`can't find board with id ${id}`)
+    }
   }
 
   //게시글 상태변경

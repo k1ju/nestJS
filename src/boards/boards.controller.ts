@@ -3,11 +3,12 @@ import {
   Controller,
   Delete,
   Get,
-  NotFoundException,
+  Logger,
   Param,
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -16,23 +17,32 @@ import { BoardStatus } from './board-status.enum';
 import { CreateBoardDto } from './dto/createBoardDto';
 import { BoardStatusValidationPipe } from './pipes/board-status-validation.pipe';
 import { Board } from './board.entity';
+import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/auth/User.entity';
+import { GetUser } from 'src/auth/get-user.decorator';
 
 @Controller('boards')
+@UseGuards(AuthGuard())
 export class BoardsController {
+  private logger = new Logger('BoardController')
   constructor(private boardsService: BoardsService) {}
 
-  // @Get('/')
-  // getAllBoard(): Board[] {
-  //   return this.boardsService.getAllBoards();
-  // }
-
+  @Get()
+  getAllBoard(@GetUser() user: User): Promise<Board[]> {
+    this.logger.verbose(`User ${user.username} trying to get all boards`)
+    return this.boardsService.getAllBoard(user);
+  }
 
   @Post()
   @UsePipes(ValidationPipe)
-  createBoard(@Body() CreateBoardDto: CreateBoardDto): Promise<Board> { 
-    return this.boardsService.createBoard(CreateBoardDto);
+  createBoard(
+    @Body() createBoardDto: CreateBoardDto,
+    @GetUser() user: User
+  ): Promise<Board> { 
+    this.logger.verbose(`User ${user.username} creating new board 
+    Payload: ${JSON.stringify(createBoardDto)}`)
+    return this.boardsService.createBoard(createBoardDto, user);
   }
-
 
   @Get(':id')
   getBoardById(
@@ -40,15 +50,12 @@ export class BoardsController {
     return this.boardsService.getBoardById(id);
   }
 
-  @Get('')
-  getAllBoards(): Promise<Board[]> {
-    return this.boardsService.getAllBoards();
-  }
-
   @Delete('/:id')
   deleteBoard(
-    @Param('id') id: number): void {
-    this.boardsService.deleteBoard(id);
+    @Param('id') id: number,
+    @GetUser() user: User
+  ): void {
+    this.boardsService.deleteBoard(id, user);
   }
 
   @Patch('/:id/status')
@@ -56,7 +63,7 @@ export class BoardsController {
     @Param('id', ParseIntPipe) id: number,
     @Body('status', BoardStatusValidationPipe) status: BoardStatus,
   ) {
-    
+
     return this.boardsService.updateBoardStatus(id, status);
   }
 }
